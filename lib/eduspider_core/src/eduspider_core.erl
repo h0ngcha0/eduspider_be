@@ -28,20 +28,16 @@ get_app_env(Env, Default) ->
   end.
 
 start()           ->
-  ensure_start(crypto),
-  application:load(pooler),
-  ensure_start(pooler),
+  start_common(),
   application:start(eduspider_core).
 
 start_link()      ->
-  ensure_start(crypto),
-  ensure_start(pooler),
+  start_common(),
   eduspider_core_sup:start_link().
 
 stop()            ->
   Res = application:stop(eduspider_core),
-  application:stop(pooler),
-  application:stop(crypto),
+  stop_common(),
   Res.
 
 ensure_start(App) ->
@@ -85,6 +81,30 @@ search_hook() ->
 
 search_enabled() ->
   get_app_env(search_enabled, false) == true.
+
+start_common() ->
+  lists:foreach( fun(App) ->
+                     ensure_start(App)
+                 end
+               , dependent_applications()).
+
+stop_common() ->
+  lists:foreach( fun(App) ->
+                     application:stop(App)
+                 end
+               , lists:reverse(dependent_applications())).
+
+dependent_applications() ->
+  [ crypto
+  , compiler
+  , syntax_tools
+  , lager
+  , public_key
+  , ssl
+  , inets
+  , pooler
+  , webmachine
+  ].
 
 %%%_* Emacs ============================================================
 %%% Local Variables:

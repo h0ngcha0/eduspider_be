@@ -20,10 +20,28 @@ start_link() ->
   supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
+  Ip     = eduspider_core:get_app_env(web_ip, "0.0.0.0"),
+  Port   = eduspider_core:get_app_env(web_port, 8001),
+  LogDir = eduspider_core:get_app_env(log_dir, "priv/log"),
+
+  lager:info("eduspider core port:~p", [Port]),
+
+  {ok, Dispatch} = file:consult( filename:join( code:priv_dir(eduspider_core)
+                                              , "dispatch.conf")),
+
+  WebConfig = [ {ip       , Ip}
+              , {port     , Port}
+              , {log_dir  , LogDir}
+              , {dispatch , Dispatch}],
+
   eduspider_core:set_bucket_props(),
   eduspider_core:read_mapred_js(),
-  Child = ?CHILD(eduspider_core_server, worker),
-  {ok, { {one_for_one, 5, 10}, [Child]}}.
+
+  Child = { webmachine_mochiweb
+          , {webmachine_mochiweb, start, [WebConfig]}
+          ,  permanent, 5000, worker, [webmachine_mochiweb]},
+
+  {ok, {{one_for_one, 5, 10}, [Child]}}.
 
 %%%_* Emacs ============================================================
 %%% Local Variables:
