@@ -27,7 +27,7 @@ test:
 	./rebar skip_deps=true eunit
 
 console:
-	erl -sname eduspider_core -pa $(PWD)/lib/*/ebin -boot start_sasl -s reloader -s eduspider_core -init_debug -config gen/files/sys.config
+	erl -sname eduspider_core -pa $(PWD)/lib/*/ebin -pa $(PWD)/deps/*/ebin -boot start_sasl -s reloader -s eduspider_core -init_debug -config gen/files/sys.config
 
 devstart: compile console
 
