@@ -18,4 +18,4 @@ lib/*/ebin/
 log/
 *~
 *.eunit
-rebar
+
