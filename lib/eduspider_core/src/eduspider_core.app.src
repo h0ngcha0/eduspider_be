@@ -1,0 +1,31 @@
+{application, eduspider_core,
+ [
+  {description, "the core functinality of the eduspider application"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [ kernel
+                 , stdlib
+                 , lager
+                 ]},
+  {mod, { eduspider_core_app, []}},
+  {env, [ {riak, {pb, {"127.0.0.1", 8087}}}
+        %%{riak, {http, {"127.0.0.1", 8098, "riak"}}}
+        , {search_enabled, false}
+        , {log_dir, "log"}
+        , { pooler
+          , [ {pools, [ [ {name, "riakpbc"}
+                        , {max_count, 1000}
+                        , {init_count, 100}
+                        , { start_mfa
+                          , { riakc_pb_socket
+                            , start_link
+                            , ["127.0.0.1", 8087]
+                            }
+                          }
+                        ]
+                      ]
+              }
+            ]
+          }
+        ]}
+ ]}.
